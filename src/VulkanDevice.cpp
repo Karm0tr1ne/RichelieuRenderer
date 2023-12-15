@@ -69,9 +69,7 @@ namespace VulkanBase {
         createInfo.ppEnabledLayerNames = enableValidation ? validationLayers.data() : nullptr;
         createInfo.enabledExtensionCount = deviceExtensions.size();
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-        if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create logical device!");
-        }
+        VK_CHECK_RESULT(vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice));
 
         commandPool = createCommandPool(queueIndices.graphicsIdx);
     }
@@ -108,9 +106,7 @@ namespace VulkanBase {
         createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         createInfo.flags = createFlags;
         createInfo.queueFamilyIndex = queueFamilyIdx;
-        if (vkCreateCommandPool(logicalDevice, &createInfo, nullptr, &cmdPool) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create command pool!");
-        }
+        VK_CHECK_RESULT(vkCreateCommandPool(logicalDevice, &createInfo, nullptr, &cmdPool));
         return cmdPool;
     }
 
@@ -123,9 +119,7 @@ namespace VulkanBase {
         createInfo.size = size;
         createInfo.usage = usageFlags;
 
-        if (vkCreateBuffer(logicalDevice, &createInfo, nullptr, &pBuffer->buffer) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create buffer!");
-        }
+        VK_CHECK_RESULT(vkCreateBuffer(logicalDevice, &createInfo, nullptr, &pBuffer->buffer));
 
         VkMemoryRequirements memoryRequirements;
         VkMemoryAllocateInfo allocateInfo{};
@@ -140,9 +134,7 @@ namespace VulkanBase {
             flagsInfo.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR;
             allocateInfo.pNext = &flagsInfo;
         }
-        if (vkAllocateMemory(logicalDevice, &allocateInfo, nullptr, &pBuffer->memory) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allcoate memory!");
-        }
+        VK_CHECK_RESULT(vkAllocateMemory(logicalDevice, &allocateInfo, nullptr, &pBuffer->memory));
 
         pBuffer->alignment = memoryRequirements.alignment;
         pBuffer->size = size;
@@ -185,23 +177,17 @@ namespace VulkanBase {
         allocateInfo.level = level;
         allocateInfo.commandBufferCount = 1;
         VkCommandBuffer copyCommand;
-        if (vkAllocateCommandBuffers(logicalDevice, &allocateInfo, &copyCommand) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate command buffers!");
-        }
+        VK_CHECK_RESULT(vkAllocateCommandBuffers(logicalDevice, &allocateInfo, &copyCommand));
         if (begin) {
             VkCommandBufferBeginInfo beginInfo{};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            if (vkBeginCommandBuffer(copyCommand, &beginInfo) != VK_SUCCESS) {
-                throw std::runtime_error("failed to begin command buffer!");
-            }
+            VK_CHECK_RESULT(vkBeginCommandBuffer(copyCommand, &beginInfo));
         }
         return copyCommand;
     }
 
     void VulkanDevice::flushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, bool free) const {
-        if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-            throw std::runtime_error("failed to end command buffer!");
-        }
+        VK_CHECK_RESULT(vkEndCommandBuffer(commandBuffer));
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
@@ -211,15 +197,9 @@ namespace VulkanBase {
         VkFenceCreateInfo fenceInfo{};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = 0;
-        if (vkCreateFence(logicalDevice, &fenceInfo, nullptr, &fence) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create fence!");
-        }
-        if (vkQueueSubmit(queue, 1, &submitInfo, fence) != VK_SUCCESS) {
-            throw std::runtime_error("failed to submit queue!");
-        }
-        if (vkWaitForFences(logicalDevice, 1, &fence, VK_TRUE, UINT64_MAX) != VK_SUCCESS) {
-            throw std::runtime_error("failed to wait for fences!");
-        }
+        VK_CHECK_RESULT(vkCreateFence(logicalDevice, &fenceInfo, nullptr, &fence));
+        VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, fence));
+        VK_CHECK_RESULT(vkWaitForFences(logicalDevice, 1, &fence, VK_TRUE, UINT64_MAX));
         vkDestroyFence(logicalDevice, fence, nullptr);
         if (free) {
             vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
@@ -232,9 +212,7 @@ namespace VulkanBase {
         createInfo.size = size;
         createInfo.usage = usageFlags;
 
-        if (vkCreateBuffer(logicalDevice, &createInfo, nullptr, buffer) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create buffer!");
-        }
+        VK_CHECK_RESULT(vkCreateBuffer(logicalDevice, &createInfo, nullptr, buffer));
 
         VkMemoryRequirements memoryRequirements;
         VkMemoryAllocateInfo allocateInfo{};
@@ -249,15 +227,11 @@ namespace VulkanBase {
             flagsInfo.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT_KHR;
             allocateInfo.pNext = &flagsInfo;
         }
-        if (vkAllocateMemory(logicalDevice, &allocateInfo, nullptr, memory) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allcoate memory!");
-        }
+        VK_CHECK_RESULT(vkAllocateMemory(logicalDevice, &allocateInfo, nullptr, memory));
 
         if (data != nullptr) {
             void *mapped;
-           if (vkMapMemory(logicalDevice, *memory, 0, size, 0, &mapped) != VK_SUCCESS) {
-               throw std::runtime_error("failed to map memory!");
-           }
+            VK_CHECK_RESULT(vkMapMemory(logicalDevice, *memory, 0, size, 0, &mapped));
             memcpy(mapped, data, size);
             // If host coherency hasn't been requested, do a manual flush to make writes visible
             if ((propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0)
@@ -271,8 +245,6 @@ namespace VulkanBase {
             }
             vkUnmapMemory(logicalDevice, *memory);
         }
-        if (vkBindBufferMemory(logicalDevice, *buffer, *memory, 0) != VK_SUCCESS) {
-            throw std::runtime_error("failed to bind buffer and memory!");
-        }
+        VK_CHECK_RESULT(vkBindBufferMemory(logicalDevice, *buffer, *memory, 0));
     }
 }

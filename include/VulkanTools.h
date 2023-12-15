@@ -3,6 +3,17 @@
 
 #include <string>
 #include <vulkan/vulkan.h>
+
+#define VK_CHECK_RESULT(f)																				\
+{																										\
+	VkResult res = (f);																					\
+	if (res != VK_SUCCESS)																				\
+	{																									\
+		std::cout << "Fatal : VkResult is \"" << VulkanBase::Tools::errorString(res) << "\" in " << __FILE__ << " at line " << __LINE__ << "\n"; \
+		assert(res == VK_SUCCESS);																		\
+	}																									\
+}
+
 namespace VulkanBase {
     namespace Tools {
         std::string getAssetPath();
@@ -16,6 +27,7 @@ namespace VulkanBase {
                             VkImageSubresourceRange subresourceRange,
                             VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                             VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+        std::string errorString(VkResult res);
     }
 }
 #endif

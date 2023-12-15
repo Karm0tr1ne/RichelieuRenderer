@@ -101,9 +101,7 @@ public:
         layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
         layoutInfo.pBindings = bindings.data();
 
-        if (vkCreateDescriptorSetLayout(vulkanDevice->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor set layout!");
-        }
+        VK_CHECK_RESULT(vkCreateDescriptorSetLayout(vulkanDevice->logicalDevice, &layoutInfo, nullptr, &descriptorSetLayout));
     }
 
     void createPipelineLayout() {
@@ -114,9 +112,7 @@ public:
         createInfo.pushConstantRangeCount = 0;
         createInfo.pPushConstantRanges = nullptr;
 
-        if (vkCreatePipelineLayout(vulkanDevice->logicalDevice, &createInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create pipeline layout!");
-        }
+        VK_CHECK_RESULT(vkCreatePipelineLayout(vulkanDevice->logicalDevice, &createInfo, nullptr, &pipelineLayout));
     }
 
     void createPipeline() {
@@ -225,9 +221,7 @@ public:
         createInfo.pStages = shaderStages.data();
         createInfo.pVertexInputState = &vertexInputState;
 
-        if (vkCreateGraphicsPipelines(vulkanDevice->logicalDevice, pipelineCache, 1, &createInfo, nullptr, &pipeline) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create graphics pipeline!");
-        }
+        VK_CHECK_RESULT(vkCreateGraphicsPipelines(vulkanDevice->logicalDevice, pipelineCache, 1, &createInfo, nullptr, &pipeline));
     }
 
     void createDescriptorSets() {
@@ -243,9 +237,7 @@ public:
         createInfo.pPoolSizes = poolSizes.data();
         createInfo.maxSets = 2;
 
-        if (vkCreateDescriptorPool(vulkanDevice->logicalDevice, &createInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create descriptor pool!");
-        }
+        VK_CHECK_RESULT(vkCreateDescriptorPool(vulkanDevice->logicalDevice, &createInfo, nullptr, &descriptorPool));
 
         VkDescriptorSetAllocateInfo allocateInfo{};
         allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -253,9 +245,7 @@ public:
         allocateInfo.descriptorSetCount = 1;
         allocateInfo.pSetLayouts = &descriptorSetLayout;
 
-        if (vkAllocateDescriptorSets(vulkanDevice->logicalDevice, &allocateInfo, &descriptorSet) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate descriptor sets!");
-        }
+        VK_CHECK_RESULT(vkAllocateDescriptorSets(vulkanDevice->logicalDevice, &allocateInfo, &descriptorSet));
 
         VkDescriptorImageInfo imageInfo = textures.mainTexture.getImageInfo();
 
@@ -300,9 +290,7 @@ public:
 
         for (uint32_t i = 0; i < drawCommandBuffers.size(); i++) {
             renderPassBeginInfo.framebuffer = frameBuffers[i];
-            if (vkBeginCommandBuffer(drawCommandBuffers[i], &bufferBeginInfo) != VK_SUCCESS) {
-                throw std::runtime_error("failed to begin command buffer!");
-            }
+            VK_CHECK_RESULT(vkBeginCommandBuffer(drawCommandBuffers[i], &bufferBeginInfo));
             vkCmdBeginRenderPass(drawCommandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             VkDeviceSize offsets[] = {0};
@@ -328,9 +316,7 @@ public:
             vkCmdDrawIndexed(drawCommandBuffers[i], static_cast<uint32_t>(models.vikingRoom.indices.size()), 1, 0, 0, 0);
 
             vkCmdEndRenderPass(drawCommandBuffers[i]);
-            if (vkEndCommandBuffer(drawCommandBuffers[i]) != VK_SUCCESS) {
-                throw std::runtime_error("failed to end command buffer!");
-            }
+            VK_CHECK_RESULT(vkEndCommandBuffer(drawCommandBuffers[i]));
         }
     }
 
@@ -339,9 +325,7 @@ public:
         updateUniformBuffers();
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &drawCommandBuffers[currentBuffer];
-        if (vkQueueSubmit(vulkanDevice->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
-            throw std::runtime_error("failed to submit draw command buffer!");
-        }
+        VK_CHECK_RESULT(vkQueueSubmit(vulkanDevice->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
         VulkanApplicationBase::submitFrame();
     }
 
@@ -356,7 +340,6 @@ public:
         vkDestroyPipelineLayout(vulkanDevice->logicalDevice, pipelineLayout, nullptr);
         vkDestroyDescriptorPool(vulkanDevice->logicalDevice, descriptorPool, nullptr);
         vkDestroyDescriptorSetLayout(vulkanDevice->logicalDevice, descriptorSetLayout, nullptr);
-
     }
 };
 

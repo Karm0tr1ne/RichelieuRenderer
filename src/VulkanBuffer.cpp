@@ -1,11 +1,10 @@
 #include "VulkanBuffer.h"
-
+#include <iostream>
+#include <cassert>
 #include <stdexcept>
 
 void VulkanBase::VulkanBuffer::map(VkDeviceSize deviceSize, VkDeviceSize offset) {
-    if (vkMapMemory(logicalDevice, memory, offset, deviceSize, 0, &mapped) != VK_SUCCESS) {
-        throw std::runtime_error("failed to map memory!");
-    }
+    VK_CHECK_RESULT(vkMapMemory(logicalDevice, memory, offset, deviceSize, 0, &mapped));
 }
 
 void VulkanBase::VulkanBuffer::unmap() {
@@ -21,9 +20,7 @@ void VulkanBase::VulkanBuffer::flush(VkDeviceSize deviceSize, VkDeviceSize offse
     mappedRange.memory = memory;
     mappedRange.offset = offset;
     mappedRange.size = deviceSize;
-    if (vkFlushMappedMemoryRanges(logicalDevice, 1, &mappedRange) != VK_SUCCESS) {
-        throw std::runtime_error("failed to flush mapped memory ranges!");
-    }
+    VK_CHECK_RESULT(vkFlushMappedMemoryRanges(logicalDevice, 1, &mappedRange));
 }
 
 void VulkanBase::VulkanBuffer::setDescriptor(VkDeviceSize deviceSize, VkDeviceSize offset) {
@@ -33,9 +30,7 @@ void VulkanBase::VulkanBuffer::setDescriptor(VkDeviceSize deviceSize, VkDeviceSi
 }
 
 void VulkanBase::VulkanBuffer::bind(VkDeviceSize offset) const {
-    if (vkBindBufferMemory(logicalDevice, buffer, memory, offset) != VK_SUCCESS) {
-        throw std::runtime_error("failed to bind buffer and memory!");
-    }
+    VK_CHECK_RESULT(vkBindBufferMemory(logicalDevice, buffer, memory, offset));
 }
 
 void VulkanBase::VulkanBuffer::cleanUp() {

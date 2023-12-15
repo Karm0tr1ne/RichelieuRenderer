@@ -65,9 +65,7 @@ void VulkanApplicationBase::setupDepthStencil() {
     createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     createInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
-    if (vkCreateImage(vulkanDevice->logicalDevice, &createInfo, nullptr, &depthStencil.image) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create depth image!");
-    }
+    VK_CHECK_RESULT(vkCreateImage(vulkanDevice->logicalDevice, &createInfo, nullptr, &depthStencil.image));
 
     VkMemoryRequirements memoryRequirements{};
     vkGetImageMemoryRequirements(vulkanDevice->logicalDevice, depthStencil.image, &memoryRequirements);
@@ -76,12 +74,8 @@ void VulkanApplicationBase::setupDepthStencil() {
     allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocateInfo.allocationSize = memoryRequirements.size;
     allocateInfo.memoryTypeIndex = vulkanDevice->getMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    if (vkAllocateMemory(vulkanDevice->logicalDevice, &allocateInfo, nullptr, &depthStencil.memory) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate memory for depth image!");
-    }
-    if (vkBindImageMemory(vulkanDevice->logicalDevice, depthStencil.image, depthStencil.memory, 0) != VK_SUCCESS) {
-        throw std::runtime_error("failed to bind image memory for depth stencil resources!");
-    }
+    VK_CHECK_RESULT(vkAllocateMemory(vulkanDevice->logicalDevice, &allocateInfo, nullptr, &depthStencil.memory));
+    VK_CHECK_RESULT(vkBindImageMemory(vulkanDevice->logicalDevice, depthStencil.image, depthStencil.memory, 0));
 
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -93,9 +87,7 @@ void VulkanApplicationBase::setupDepthStencil() {
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
     viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-    if (vkCreateImageView(vulkanDevice->logicalDevice, &viewInfo, nullptr, &depthStencil.imageView) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create image view for depth stencil!");
-    }
+    VK_CHECK_RESULT(vkCreateImageView(vulkanDevice->logicalDevice, &viewInfo, nullptr, &depthStencil.imageView));
 }
 
 void VulkanApplicationBase::setupColorResources() {
@@ -112,9 +104,7 @@ void VulkanApplicationBase::setupColorResources() {
     imageInfo.samples = vulkanDevice->msaaSamples;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateImage(vulkanDevice->logicalDevice, &imageInfo, nullptr, &colorResources.image) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create msaa color image!");
-    }
+    VK_CHECK_RESULT(vkCreateImage(vulkanDevice->logicalDevice, &imageInfo, nullptr, &colorResources.image));
 
     VkMemoryRequirements memoryRequirements;
     vkGetImageMemoryRequirements(vulkanDevice->logicalDevice, colorResources.image, &memoryRequirements);
@@ -122,12 +112,8 @@ void VulkanApplicationBase::setupColorResources() {
     allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocateInfo.allocationSize = memoryRequirements.size;
     allocateInfo.memoryTypeIndex = vulkanDevice->getMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    if (vkAllocateMemory(vulkanDevice->logicalDevice, &allocateInfo, nullptr, &colorResources.memory) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate memory for msaa image!");
-    }
-    if (vkBindImageMemory(vulkanDevice->logicalDevice, colorResources.image, colorResources.memory, 0) != VK_SUCCESS) {
-        throw std::runtime_error("failed to bind image memory for depth stencil resources!");
-    }
+    VK_CHECK_RESULT(vkAllocateMemory(vulkanDevice->logicalDevice, &allocateInfo, nullptr, &colorResources.memory));
+    VK_CHECK_RESULT(vkBindImageMemory(vulkanDevice->logicalDevice, colorResources.image, colorResources.memory, 0));
 
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -140,9 +126,7 @@ void VulkanApplicationBase::setupColorResources() {
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    if (vkCreateImageView(vulkanDevice->logicalDevice, &viewInfo, nullptr, &colorResources.imageView) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create image view for msaa resources!");
-    }
+    VK_CHECK_RESULT(vkCreateImageView(vulkanDevice->logicalDevice, &viewInfo, nullptr, &colorResources.imageView));
 }
 
 void VulkanApplicationBase::createFrameBuffer() {
@@ -164,9 +148,7 @@ void VulkanApplicationBase::createFrameBuffer() {
     frameBuffers.resize(swapchain->imageCount);
     for (uint32_t i = 0; i < frameBuffers.size(); i++) {
         attachments[2] = swapchain->swapchainBuffers[i].imageView;
-        if (vkCreateFramebuffer(vulkanDevice->logicalDevice, &createInfo, nullptr, &frameBuffers[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create framebuffer!");
-        }
+        VK_CHECK_RESULT(vkCreateFramebuffer(vulkanDevice->logicalDevice, &createInfo, nullptr, &frameBuffers[i]));
     }
 }
 
@@ -241,9 +223,7 @@ void VulkanApplicationBase::createRenderPass() {
     createInfo.pSubpasses = &description;
     createInfo.dependencyCount = 1;
     createInfo.pDependencies = &dependency;
-    if (vkCreateRenderPass(vulkanDevice->logicalDevice, &createInfo, nullptr, &renderPass) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create render pass!");
-    }
+    VK_CHECK_RESULT(vkCreateRenderPass(vulkanDevice->logicalDevice, &createInfo, nullptr, &renderPass));
 }
 
 void VulkanApplicationBase::prepareFrame() {
@@ -377,9 +357,7 @@ void VulkanApplicationBase::createInstance() {
         createInfo.pNext = nullptr;
     }
 
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create instance!");
-    }
+    VK_CHECK_RESULT(vkCreateInstance(&createInfo, nullptr, &instance));
 
     if (enableValidation) {
         VkDebugUtilsMessengerCreateInfoEXT createInfoExt = {};
@@ -388,7 +366,7 @@ void VulkanApplicationBase::createInstance() {
         createInfoExt.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         createInfoExt.pfnUserCallback = VulkanDebugMessage;
         createInfoExt.pUserData = nullptr;
-        if (CreateDebugUtilsMessengerEXT(instance, &createInfoExt, nullptr, &debugMessenger) != VK_SUCCESS) {
+        if (createDebugUtilsMessengerExt(instance, &createInfoExt, nullptr, &debugMessenger) != VK_SUCCESS) {
             throw std::runtime_error("failed to set up debug messenger!");
         }
     }
@@ -415,29 +393,21 @@ void VulkanApplicationBase::createCommandBuffers() {
     allocateInfo.commandPool = cmdPool;
     allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocateInfo.commandBufferCount = static_cast<uint32_t>(drawCommandBuffers.size());
-    if (vkAllocateCommandBuffers(vulkanDevice->logicalDevice, &allocateInfo, drawCommandBuffers.data()) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate command buffers!");
-    }
+    VK_CHECK_RESULT(vkAllocateCommandBuffers(vulkanDevice->logicalDevice, &allocateInfo, drawCommandBuffers.data()));
 }
 
 void VulkanApplicationBase::createSyncPrimitives() {
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    if (vkCreateSemaphore(vulkanDevice->logicalDevice, &semaphoreInfo, nullptr, &semaphores.renderCompleteSemaphore) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create semaphores!");
-    }
-    if (vkCreateSemaphore(vulkanDevice->logicalDevice, &semaphoreInfo, nullptr, &semaphores.presentCompleteSemaphore) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create semaphores!");
-    }
+    VK_CHECK_RESULT(vkCreateSemaphore(vulkanDevice->logicalDevice, &semaphoreInfo, nullptr, &semaphores.renderCompleteSemaphore));
+    VK_CHECK_RESULT(vkCreateSemaphore(vulkanDevice->logicalDevice, &semaphoreInfo, nullptr, &semaphores.presentCompleteSemaphore));
 
     VkFenceCreateInfo fenceInfo{};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     inFlightFences.resize(drawCommandBuffers.size());
     for (auto& fence : inFlightFences) {
-        if (vkCreateFence(vulkanDevice->logicalDevice, &fenceInfo, nullptr, &fence) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create fence!");
-        }
+        VK_CHECK_RESULT(vkCreateFence(vulkanDevice->logicalDevice, &fenceInfo, nullptr, &fence));
     }
     submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -453,9 +423,7 @@ void VulkanApplicationBase::createCommandPool() {
     createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     createInfo.queueFamilyIndex = swapchain->queueIndices.graphicsIdx;
     createInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    if (vkCreateCommandPool(vulkanDevice->logicalDevice, &createInfo, nullptr, &cmdPool) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create command pool!");
-    }
+    VK_CHECK_RESULT(vkCreateCommandPool(vulkanDevice->logicalDevice, &createInfo, nullptr, &cmdPool));
 }
 
 void VulkanApplicationBase::windowResize() {
@@ -492,9 +460,7 @@ void VulkanApplicationBase::windowResize() {
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
     inFlightFences.resize(drawCommandBuffers.size());
     for (auto& fence : inFlightFences) {
-        if (vkCreateFence(vulkanDevice->logicalDevice, &fenceInfo, nullptr, &fence) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create fence!");
-        }
+        VK_CHECK_RESULT(vkCreateFence(vulkanDevice->logicalDevice, &fenceInfo, nullptr, &fence));
     }
 
     vkDeviceWaitIdle(vulkanDevice->logicalDevice);
@@ -502,9 +468,9 @@ void VulkanApplicationBase::windowResize() {
 
 void VulkanApplicationBase::buildCommandBuffers() {}
 
-VkResult VulkanApplicationBase::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-                                          const VkAllocationCallbacks *pAllocator,
-                                          VkDebugUtilsMessengerEXT *pDebugMessenger) {
+VkResult VulkanApplicationBase::createDebugUtilsMessengerExt(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+                                                             const VkAllocationCallbacks *pAllocator,
+                                                             VkDebugUtilsMessengerEXT *pDebugMessenger) {
     auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     if (func != nullptr) {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
@@ -559,9 +525,7 @@ VulkanApplicationBase::~VulkanApplicationBase() {
 void VulkanApplicationBase::createPipelineCache() {
     VkPipelineCacheCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-    if (vkCreatePipelineCache(vulkanDevice->logicalDevice, &createInfo, nullptr, &pipelineCache) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create pipeline cache!");
-    }
+    VK_CHECK_RESULT(vkCreatePipelineCache(vulkanDevice->logicalDevice, &createInfo, nullptr, &pipelineCache));
 }
 
 VkPipelineShaderStageCreateInfo VulkanApplicationBase::createShader(const std::string& filePath, VkShaderStageFlagBits stages) {

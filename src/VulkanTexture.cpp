@@ -51,21 +51,15 @@ namespace VulkanBase {
         bufferCreateInfo.size = imageSize;
         bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
         bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        if (vkCreateBuffer(pDevice->logicalDevice, &bufferCreateInfo, nullptr, &stagingBuffer) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create staging buffer!");
-        }
+        VK_CHECK_RESULT(vkCreateBuffer(pDevice->logicalDevice, &bufferCreateInfo, nullptr, &stagingBuffer));
         vkGetBufferMemoryRequirements(pDevice->logicalDevice, stagingBuffer, &memoryRequirements);
 
         allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocateInfo.allocationSize = memoryRequirements.size;
         allocateInfo.memoryTypeIndex = pDevice->getMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        if (vkAllocateMemory(pDevice->logicalDevice, &allocateInfo, nullptr, &stagingMemory) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate memory for staging buffer");
-        }
-        if (vkBindBufferMemory(pDevice->logicalDevice, stagingBuffer, stagingMemory, 0) != VK_SUCCESS) {
-            throw std::runtime_error("failed to bind staging buffer with memory!");
-        }
+        VK_CHECK_RESULT(vkAllocateMemory(pDevice->logicalDevice, &allocateInfo, nullptr, &stagingMemory));
+        VK_CHECK_RESULT(vkBindBufferMemory(pDevice->logicalDevice, stagingBuffer, stagingMemory, 0));
 
         void *data;
         vkMapMemory(pDevice->logicalDevice, stagingMemory, 0, imageSize, 0, &data);
@@ -90,18 +84,12 @@ namespace VulkanBase {
         imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageCreateInfo.extent = {width, height, 1};
         imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-        if (vkCreateImage(pDevice->logicalDevice, &imageCreateInfo, nullptr, &image) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create image!");
-        }
+        VK_CHECK_RESULT(vkCreateImage(pDevice->logicalDevice, &imageCreateInfo, nullptr, &image));
         vkGetImageMemoryRequirements(pDevice->logicalDevice, image, &memoryRequirements);
         allocateInfo.allocationSize = memoryRequirements.size;
         allocateInfo.memoryTypeIndex = pDevice->getMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        if (vkAllocateMemory(pDevice->logicalDevice, &allocateInfo, nullptr, &deviceMemory) != VK_SUCCESS) {
-            throw std::runtime_error("failed to allocate memory!");
-        }
-        if (vkBindImageMemory(pDevice->logicalDevice, image, deviceMemory, 0) != VK_SUCCESS) {
-            throw std::runtime_error("failed to bind image and memory!");
-        }
+        VK_CHECK_RESULT(vkAllocateMemory(pDevice->logicalDevice, &allocateInfo, nullptr, &deviceMemory));
+        VK_CHECK_RESULT(vkBindImageMemory(pDevice->logicalDevice, image, deviceMemory, 0));
 
         VkImageSubresourceRange subresourceRange{};
         subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -148,9 +136,7 @@ namespace VulkanBase {
         samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
         samplerInfo.compareEnable = VK_FALSE;
-        if (vkCreateSampler(pDevice->logicalDevice, &samplerInfo, nullptr, &sampler) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create sampler!");
-        }
+        VK_CHECK_RESULT(vkCreateSampler(pDevice->logicalDevice, &samplerInfo, nullptr, &sampler));
 
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -162,8 +148,6 @@ namespace VulkanBase {
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
         viewInfo.image = image;
-        if (vkCreateImageView(pDevice->logicalDevice, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create image view!");
-        }
+        VK_CHECK_RESULT(vkCreateImageView(pDevice->logicalDevice, &viewInfo, nullptr, &imageView));
     }
 }

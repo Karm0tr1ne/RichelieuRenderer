@@ -1,5 +1,8 @@
 #include <stdexcept>
+#include <iostream>
+#include <cassert>
 #include "VulkanSwapchain.h"
+#include "VulkanTools.h"
 
 namespace VulkanBase {
     VulkanSwapchain::VulkanSwapchain(QueueIndices _queueIndices, VkPhysicalDevice _physicalDevice, VkDevice _device, VkSurfaceKHR _surface) : queueIndices(_queueIndices), physicalDevice(_physicalDevice), logicalDevice(_device), surface(_surface) {
@@ -94,9 +97,7 @@ namespace VulkanBase {
         createInfo.presentMode = selectedPresentMode;
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = oldSwapchain;
-        if (vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapchain) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create swapchain!");
-        }
+        VK_CHECK_RESULT(vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapchain));
 
         if (oldSwapchain != VK_NULL_HANDLE) {
             for (auto &swapchainBuffer: swapchainBuffers) {
@@ -131,9 +132,7 @@ namespace VulkanBase {
             swapchainBuffers[i].image = images[i];
             viewInfo.image = swapchainBuffers[i].image;
 
-            if (vkCreateImageView(logicalDevice, &viewInfo, nullptr, &swapchainBuffers[i].imageView) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create image view!");
-            }
+            VK_CHECK_RESULT(vkCreateImageView(logicalDevice, &viewInfo, nullptr, &swapchainBuffers[i].imageView));
         }
     }
 
