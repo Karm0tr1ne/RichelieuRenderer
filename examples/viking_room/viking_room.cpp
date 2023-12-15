@@ -55,7 +55,7 @@ public:
     }
 
     void loadAssets() {
-        models.vikingRoom.loadFromFile(VulkanBase::Tools::getAssetPath() + "viking_room/viking_room.obj", vulkanDevice);
+        models.vikingRoom.loadFromObj(VulkanBase::Tools::getAssetPath() + "viking_room/viking_room.obj", vulkanDevice);
         textures.mainTexture.loadFromFile(VulkanBase::Tools::getAssetPath() + "viking_room/viking_room.png", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice);
     }
 

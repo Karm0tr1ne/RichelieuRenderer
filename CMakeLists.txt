@@ -1,20 +1,26 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(Richelieu)
+project(RichelieuRenderer)
 
 set(CMAKE_CXX_STANDARD 17)
+
+IF(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 13)
+    MESSAGE(STATUS "GCC13 detected disabling \"-Wdangling-reference\" in Cpp files as it appears to be a false positive")
+    ADD_COMPILE_OPTIONS("$<$<COMPILE_LANGUAGE:CXX>:-Wno-dangling-reference>")
+ENDIF()
 
 message(STATUS "Check VULKAN_SDK environment variable: $ENV{VULKAN_SDK}")
 find_package(Vulkan REQUIRED)
 
 add_subdirectory(third_party/glfw)
 add_subdirectory(third_party/glm)
+add_subdirectory(third_party/assimp)
 
 include_directories(include)
 include_directories(third_party/imgui)
 include_directories(third_party/imgui/backends)
 
-add_executable(Richelieu
+add_executable(${PROJECT_NAME}
         src/VulkanApplicationBase.cpp
         src/VulkanTools.cpp
         src/VulkanDevice.cpp
@@ -32,7 +38,7 @@ add_executable(Richelieu
         examples/viking_room/viking_room.cpp
 )
 
-target_link_libraries(Richelieu glfw)
-target_link_libraries(Richelieu glm)
-target_link_libraries(Richelieu Vulkan::Vulkan)
-
+target_link_libraries(${PROJECT_NAME} glfw)
+target_link_libraries(${PROJECT_NAME} glm)
+target_link_libraries(${PROJECT_NAME} assimp)
+target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)

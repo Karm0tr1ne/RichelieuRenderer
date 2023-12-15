@@ -8,6 +8,7 @@ A renderer built on top of the Vulkan Graphics API.
 - [stb_image](https://github.com/nothings/stb)
 - [tiny_obj_loader](https://github.com/tinyobjloader/tinyobjloader)
 - [Dear ImGui](https://github.com/ocornut/imgui)
+- [Assimp](https://github.com/assimp/assimp)
 
 ## Installation
 ### Project Cloning
