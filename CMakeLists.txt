@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(RichelieuRenderer)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 IF(CMAKE_CXX_COMPILER_VERSION GREATER_EQUAL 13)
     MESSAGE(STATUS "GCC13 detected disabling \"-Wdangling-reference\" in Cpp files as it appears to be a false positive")
@@ -20,25 +21,37 @@ include_directories(include)
 include_directories(third_party/imgui)
 include_directories(third_party/imgui/backends)
 
-add_executable(${PROJECT_NAME}
-        src/VulkanApplicationBase.cpp
-        src/VulkanTools.cpp
-        src/VulkanDevice.cpp
-        src/VulkanSwapchain.cpp
-        src/VulkanModel.cpp
-        src/VulkanBuffer.cpp
-        src/VulkanTexture.cpp
-        third_party/imgui/imgui.cpp
-        third_party/imgui/imgui_draw.cpp
-        third_party/imgui/imgui_tables.cpp
-        third_party/imgui/imgui_widgets.cpp
-        third_party/imgui/imgui_demo.cpp
-        third_party/imgui/backends/imgui_impl_vulkan.cpp
-        third_party/imgui/backends/imgui_impl_glfw.cpp
-        examples/viking_room/viking_room.cpp
+file(GLOB BASE_SRC "src/*.cpp")
+
+function(buildSingleExample EXAMPLE_NAME)
+    set(EXAMPLE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/examples/${EXAMPLE_NAME})
+    message(STATUS "Building example: ${EXAMPLE_NAME}")
+
+    file(GLOB SOURCE *.cpp ${EXAMPLE_FOLDER}/*.cpp)
+    set(MAIN_CPP ${EXAMPLE_FOLDER}/${EXAMPLE_NAME}.cpp)
+
+    file(GLOB IMGUI_SOURCE "../third_party/imgui/*.cpp" "../third_party/imgui/backends/*.cpp")
+    set(SOURCE ${SOURCE} ${IMGUI_SOURCE})
+
+    add_executable(${EXAMPLE_NAME} ${MAIN_CPP} ${SOURCE} ${IMGUI_SOURCE} ${BASE_SRC})
+    target_link_libraries(${EXAMPLE_NAME} glfw)
+    target_link_libraries(${EXAMPLE_NAME} glm)
+    target_link_libraries(${EXAMPLE_NAME} assimp)
+    target_link_libraries(${EXAMPLE_NAME} Vulkan::Vulkan)
+
+
+endfunction(buildSingleExample)
+
+function(buildAllExamples)
+    foreach (EXAMPLE ${EXAMPLES})
+        buildSingleExample(${EXAMPLE})
+    endforeach ()
+endfunction(buildAllExamples)
+
+set(EXAMPLES
+        PBR
+        ray_tracing
+        viking_room
 )
 
-target_link_libraries(${PROJECT_NAME} glfw)
-target_link_libraries(${PROJECT_NAME} glm)
-target_link_libraries(${PROJECT_NAME} assimp)
-target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+buildAllExamples()
