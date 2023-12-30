@@ -18,7 +18,6 @@ void Model::loadFromFile(std::string filePath, VulkanBase::VulkanDevice *device)
     }
     processNode(scene->mRootNode, scene);
     std::cout << "Loading New Model: " << filePath << std::endl;
-    // std::cout << " Model: " << shape.name << std::endl;
     std::cout << " Vertices: " << vertices.size() << std::endl;
 
     createBuffer();
@@ -107,7 +106,6 @@ void Model::loadFromObj(std::string filePath, VulkanBase::VulkanDevice *device) 
                     attrib.texcoords[2 * index.texcoord_index + 0],
                     1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
             };
-            vertex.color = {1.0f, 1.0f, 1.0f};
             vertices.push_back(vertex);
             indices.push_back(indices.size());
         }
@@ -170,8 +168,8 @@ void Model::createBuffer() {
     vkFreeMemory(pDevice->logicalDevice, indexStaging.memory, nullptr);
 }
 
-std::array<VkVertexInputAttributeDescription, 5> Vertex::GetAttributeDescriptions() {
-    std::array<VkVertexInputAttributeDescription, 5> attributeDescriptions{};
+std::array<VkVertexInputAttributeDescription, 4> Vertex::GetAttributeDescriptions() {
+    std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
 
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
@@ -180,23 +178,18 @@ std::array<VkVertexInputAttributeDescription, 5> Vertex::GetAttributeDescription
 
     attributeDescriptions[1].binding = 0;
     attributeDescriptions[1].location = 1;
-    attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[1].offset = offsetof(Vertex, color);
+    attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+    attributeDescriptions[1].offset = offsetof(Vertex, texCoord);
 
     attributeDescriptions[2].binding = 0;
     attributeDescriptions[2].location = 2;
-    attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-    attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
+    attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[2].offset = offsetof(Vertex, normal);
 
     attributeDescriptions[3].binding = 0;
     attributeDescriptions[3].location = 3;
-    attributeDescriptions[3].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[3].offset = offsetof(Vertex, normal);
-
-    attributeDescriptions[4].binding = 0;
-    attributeDescriptions[4].location = 4;
-    attributeDescriptions[4].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-    attributeDescriptions[4].offset = offsetof(Vertex, tangent);
+    attributeDescriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+    attributeDescriptions[3].offset = offsetof(Vertex, tangent);
 
     return attributeDescriptions;
 }

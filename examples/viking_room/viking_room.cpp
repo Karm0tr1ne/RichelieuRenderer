@@ -12,7 +12,7 @@
 #include "VulkanBuffer.h"
 #include "VulkanTexture.h"
 
-class VulkanApplication : public VulkanApplicationBase {
+class VikingRoom : public VulkanApplicationBase {
 public:
     struct Textures {
         VulkanBase::Texture2D mainTexture;
@@ -38,12 +38,11 @@ public:
     VkDescriptorSetLayout descriptorSetLayout;
     VkDescriptorPool descriptorPool;
 
-    VulkanApplication() : VulkanApplicationBase() {
+    VikingRoom() : VulkanApplicationBase() {
         title = "Richelieu - Basic Viking Room";
-
     }
 
-    void prepare() {
+    void prepare() override {
         VulkanApplicationBase::prepare();
         loadAssets();
         setupUniformBuffers();
@@ -329,7 +328,7 @@ public:
         VulkanApplicationBase::submitFrame();
     }
 
-    ~VulkanApplication() override {
+    ~VikingRoom() override {
         vkDestroyBuffer(vulkanDevice->logicalDevice, uniformBuffer.uboMats.buffer, nullptr);
         vkFreeMemory(vulkanDevice->logicalDevice, uniformBuffer.uboMats.memory, nullptr);
         models.vikingRoom.cleanUp();
@@ -344,7 +343,7 @@ public:
 };
 
 int main(int argc, char *argv[]) {
-    auto *application = new VulkanApplication();
+    auto *application = new VikingRoom();
     application->setupWindow();
     application->initVulkan();
     application->prepare();

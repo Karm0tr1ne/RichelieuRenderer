@@ -13,19 +13,17 @@
 
 struct Vertex {
     glm::vec3 pos = glm::vec3();
-    glm::vec3 color = glm::vec3();
     glm::vec2 texCoord = glm::vec2();
     glm::vec3 normal = glm::vec3();
     glm::vec4 tangent = glm::vec4();
 
     static VkVertexInputBindingDescription GetBindingDescription();
 
-    static std::array<VkVertexInputAttributeDescription, 5> GetAttributeDescriptions();
+    static std::array<VkVertexInputAttributeDescription, 4> GetAttributeDescriptions();
 };
 class Model {
 public:
     VulkanBase::VulkanDevice *pDevice;
-    VkDescriptorPool descriptorPool;
 
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
