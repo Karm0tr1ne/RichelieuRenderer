@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <stdlib.h>
+#include <array>
 
 #include "vulkan/vulkan.h"
 
@@ -16,6 +17,7 @@ namespace VulkanBase {
         VulkanDevice *pDevice;
         VkImage image;
         VkImageLayout imageLayout;
+        VkDescriptorImageInfo imageInfo;
         VkDeviceMemory deviceMemory;
         VkImageView imageView;
         uint32_t width;
@@ -24,7 +26,6 @@ namespace VulkanBase {
         uint32_t layerCount;
         VkSampler sampler;
 
-        VkDescriptorImageInfo getImageInfo();
         void cleanUp();
     };
 
@@ -40,7 +41,8 @@ namespace VulkanBase {
     };
 
     class TextureCubeMap : public Texture {
-        void loadFromFile(std::string filename, VkFormat format, VulkanDevice *device, VkQueue copyQueue, VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT, VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    public:
+        void loadFromFiles(const std::array<std::string, 6> &filePaths, VkFormat format, VulkanDevice *device, VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT, VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     };
 }
 #endif

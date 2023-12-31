@@ -246,8 +246,6 @@ public:
 
         VK_CHECK_RESULT(vkAllocateDescriptorSets(vulkanDevice->logicalDevice, &allocateInfo, &descriptorSet));
 
-        VkDescriptorImageInfo imageInfo = textures.mainTexture.getImageInfo();
-
         std::array<VkWriteDescriptorSet, 2> writeDescriptorSets{};
         writeDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         writeDescriptorSets[0].dstSet = descriptorSet;
@@ -263,7 +261,7 @@ public:
         writeDescriptorSets[1].dstArrayElement = 0;
         writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         writeDescriptorSets[1].descriptorCount = 1;
-        writeDescriptorSets[1].pImageInfo = &imageInfo;
+        writeDescriptorSets[1].pImageInfo = &textures.mainTexture.imageInfo;
 
         vkUpdateDescriptorSets(vulkanDevice->logicalDevice, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0,
                                nullptr);
@@ -329,8 +327,7 @@ public:
     }
 
     ~VikingRoom() override {
-        vkDestroyBuffer(vulkanDevice->logicalDevice, uniformBuffer.uboMats.buffer, nullptr);
-        vkFreeMemory(vulkanDevice->logicalDevice, uniformBuffer.uboMats.memory, nullptr);
+        uniformBuffer.uboMats.cleanUp();
         models.vikingRoom.cleanUp();
         textures.mainTexture.cleanUp();
 

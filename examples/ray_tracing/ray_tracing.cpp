@@ -12,14 +12,14 @@
 #include "VulkanBuffer.h"
 #include "VulkanTexture.h"
 
-class VulkanApplication : public VulkanApplicationBase {
+class VikingRoom : public VulkanApplicationBase {
 public:
     struct Textures {
         VulkanBase::Texture2D mainTexture;
     } textures;
 
     struct Meshes {
-        Model vikingRoom;
+        Model helmet;
     } models;
 
     struct {
@@ -38,7 +38,7 @@ public:
     VkDescriptorSetLayout descriptorSetLayout;
     VkDescriptorPool descriptorPool;
 
-    VulkanApplication() : VulkanApplicationBase() {
+    VikingRoom() : VulkanApplicationBase() {
         title = "Richelieu - Basic Viking Room";
 
     }
@@ -55,7 +55,7 @@ public:
     }
 
     void loadAssets() {
-        models.vikingRoom.loadFromObj(VulkanBase::Tools::getAssetPath() + "viking_room/viking_room.obj", vulkanDevice);
+        models.helmet.loadFromObj(VulkanBase::Tools::getAssetPath() + "viking_room/viking_room.obj", vulkanDevice);
         textures.mainTexture.loadFromFile(VulkanBase::Tools::getAssetPath() + "viking_room/viking_room.png", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice);
     }
 
@@ -294,8 +294,8 @@ public:
             vkCmdBeginRenderPass(drawCommandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(drawCommandBuffers[i], 0, 1, &models.vikingRoom.vertexBuffer.buffer, offsets);
-            vkCmdBindIndexBuffer(drawCommandBuffers[i], models.vikingRoom.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindVertexBuffers(drawCommandBuffers[i], 0, 1, &models.helmet.vertexBuffer.buffer, offsets);
+            vkCmdBindIndexBuffer(drawCommandBuffers[i], models.helmet.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 
             VkViewport viewport{};
             viewport.width = (float)width;
@@ -313,7 +313,7 @@ public:
             vkCmdBindDescriptorSets(drawCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0,
                                     nullptr);
 
-            vkCmdDrawIndexed(drawCommandBuffers[i], static_cast<uint32_t>(models.vikingRoom.indices.size()), 1, 0, 0, 0);
+            vkCmdDrawIndexed(drawCommandBuffers[i], static_cast<uint32_t>(models.helmet.indices.size()), 1, 0, 0, 0);
 
             vkCmdEndRenderPass(drawCommandBuffers[i]);
             VK_CHECK_RESULT(vkEndCommandBuffer(drawCommandBuffers[i]));
@@ -329,10 +329,10 @@ public:
         VulkanApplicationBase::submitFrame();
     }
 
-    ~VulkanApplication() override {
+    ~VikingRoom() override {
         vkDestroyBuffer(vulkanDevice->logicalDevice, uniformBuffer.uboMats.buffer, nullptr);
         vkFreeMemory(vulkanDevice->logicalDevice, uniformBuffer.uboMats.memory, nullptr);
-        models.vikingRoom.cleanUp();
+        models.helmet.cleanUp();
         textures.mainTexture.cleanUp();
 
         vkDestroyPipeline(vulkanDevice->logicalDevice, pipeline, nullptr);
@@ -344,7 +344,7 @@ public:
 };
 
 int main(int argc, char *argv[]) {
-    auto *application = new VulkanApplication();
+    auto *application = new VikingRoom();
     application->setupWindow();
     application->initVulkan();
     application->prepare();
