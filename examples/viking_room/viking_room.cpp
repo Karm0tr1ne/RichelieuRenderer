@@ -27,6 +27,12 @@ public:
     } uniformBuffer;
 
     struct {
+        float xAngle;
+        float yAngle;
+        float zAngle;
+    } guiParams;
+
+    struct {
         glm::mat4 model;
         glm::mat4 view;
         glm::mat4 proj;
@@ -59,15 +65,13 @@ public:
     }
 
     void updateUniformBuffers() {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-        mvpMatrices.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        mvpMatrices.model = glm::rotate(glm::mat4(1.0f), guiParams.zAngle, glm::vec3(0.0f, 0.0f, 1.0f));
+        mvpMatrices.model = glm::rotate(mvpMatrices.model, guiParams.xAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+        mvpMatrices.model = glm::rotate(mvpMatrices.model, guiParams.yAngle, glm::vec3(0.0f, 1.0f, 0.0f));
         mvpMatrices.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        mvpMatrices.proj = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 10.0f);
+        mvpMatrices.proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 10.0f);
         mvpMatrices.proj[1][1] *= -1;
+
         memcpy(uniformBuffer.uboMats.mapped, &mvpMatrices, sizeof(mvpMatrices));
     }
 
@@ -311,7 +315,7 @@ public:
                                     nullptr);
 
             vkCmdDrawIndexed(drawCommandBuffers[i], static_cast<uint32_t>(models.vikingRoom.indices.size()), 1, 0, 0, 0);
-
+            showGUIWindow(drawCommandBuffers[i]);
             vkCmdEndRenderPass(drawCommandBuffers[i]);
             VK_CHECK_RESULT(vkEndCommandBuffer(drawCommandBuffers[i]));
         }
@@ -319,11 +323,31 @@ public:
 
     void drawFrame() override {
         VulkanApplicationBase::prepareFrame();
+        buildCommandBuffers();
         updateUniformBuffers();
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &drawCommandBuffers[currentBuffer];
         VK_CHECK_RESULT(vkQueueSubmit(vulkanDevice->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
         VulkanApplicationBase::submitFrame();
+    }
+
+    void showGUIWindow(VkCommandBuffer cmdBuffer) override {
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("GUI", nullptr, ImGuiWindowFlags_MenuBar);
+        ImGui::SetNextWindowSize(ImVec2(400, 300));
+        if (ImGui::CollapsingHeader("Rotation Settings")) {
+            ImGui::SliderAngle("Rotation X Axis", &guiParams.xAngle, 0);
+            ImGui::SliderAngle("Rotation Y Axis", &guiParams.yAngle, 0);
+            ImGui::SliderAngle("Rotation Z Axis", &guiParams.zAngle, 0);
+        }
+        ImGui::End();
+
+        ImGui::Render();
+
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
     }
 
     ~VikingRoom() override {
