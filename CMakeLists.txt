@@ -30,7 +30,7 @@ function(buildSingleExample EXAMPLE_NAME)
     file(GLOB SOURCE *.cpp ${EXAMPLE_FOLDER}/*.cpp)
     set(MAIN_CPP ${EXAMPLE_FOLDER}/${EXAMPLE_NAME}.cpp)
 
-    file(GLOB IMGUI_SOURCE "../third_party/imgui/*.cpp" "../third_party/imgui/backends/*.cpp")
+    file(GLOB IMGUI_SOURCE "third_party/imgui/*.cpp" "third_party/imgui/backends/imgui_impl_vulkan.cpp" "third_party/imgui/backends/imgui_impl_glfw.cpp")
     set(SOURCE ${SOURCE} ${IMGUI_SOURCE})
 
     add_executable(${EXAMPLE_NAME} ${MAIN_CPP} ${SOURCE} ${IMGUI_SOURCE} ${BASE_SRC})

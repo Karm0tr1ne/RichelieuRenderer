@@ -1,4 +1,3 @@
-
 #include <array>
 #include <stdexcept>
 #include <iostream>
@@ -498,22 +497,48 @@ public:
             vkCmdBindDescriptorSets(drawCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets.pbr, 0,nullptr);
 
             vkCmdDrawIndexed(drawCommandBuffers[i], static_cast<uint32_t>(models.helmet.indices.size()), 1, 0, 0, 0);
-
+            showGUIWindow(drawCommandBuffers[i]);
             vkCmdEndRenderPass(drawCommandBuffers[i]);
             VK_CHECK_RESULT(vkEndCommandBuffer(drawCommandBuffers[i]));
         }
     }
 
+    void showGUIWindow(VkCommandBuffer cmdBuffer) override {
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("GUI", nullptr, ImGuiWindowFlags_MenuBar);
+        ImGui::SetNextWindowSize(ImVec2(400, 300));
+//        if (ImGui::CollapsingHeader("Rotation Settings")) {
+//            ImGui::SliderAngle("Rotation X Axis", &guiElements.xAngle, 0);
+//            ImGui::SliderAngle("Rotation Y Axis", &guiElements.yAngle, 0);
+//            ImGui::SliderAngle("Rotation Z Axis", &guiElements.zAngle, 0);
+//        }
+        ImGui::End();
+
+        ImGui::Render();
+
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
+    }
+
     void drawFrame() override {
+        vkWaitForFences(vulkanDevice->logicalDevice, 1, &inFlightFences[currentBuffer], VK_TRUE, UINT64_MAX);
         VulkanApplicationBase::prepareFrame();
+        buildCommandBuffers();
         updateUniformBuffers();
+        vkResetFences(vulkanDevice->logicalDevice, 1, &inFlightFences[currentBuffer]);
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &drawCommandBuffers[currentBuffer];
-        VK_CHECK_RESULT(vkQueueSubmit(vulkanDevice->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE));
+        VK_CHECK_RESULT(vkQueueSubmit(vulkanDevice->graphicsQueue, 1, &submitInfo, inFlightFences[currentBuffer]));
         VulkanApplicationBase::submitFrame();
     }
 
     ~PbrExample() override {
+        ImGui_ImplVulkan_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+
         uniformBuffers.object.cleanUp();
         uniformBuffers.skybox.cleanUp();
         uniformBuffers.uboParams.cleanUp();

@@ -69,8 +69,9 @@ void main(){
     float roughness = texture(roughnessMap, uv).r;
     float occlusion = texture(occlusionMap, uv).r;
     vec3 emission = texture(emissionMap, uv).rgb;
+    emission *= 0.5f;
     // vec3 light = normalize(uboParams.lightPos.xyz - positionWS);
-    vec3 light = normalize(vec3(0.0f, 0.0f, 10.0f) - positionWS);
+    vec3 light = normalize(vec3(-15.0f, -7.5f, 15.0f) - positionWS);
     vec3 normalTS = texture(normalMap, uv).rgb;
     vec3 q1 = dFdx(positionWS);
     vec3 q2 = dFdy(positionWS);
@@ -89,13 +90,13 @@ void main(){
     vec3 f0 = vec3(0.04);
     f0 = mix(f0, albedo, metallic);
 
-    float D = distribution(normal, h, roughness);
+    float NDF = distribution(normal, h, roughness);
     float k = (roughness + 1) * (roughness + 1) / 8;
     float G = geometry(nv, nl, k);
     vec3 F = fresnelSchlick(max(dot(h, viewPos), 0.0), f0);
 
     float down = 4 * nv * nl + 0.001;
-    vec3 specular = D * G * F / down;
+    vec3 specular = NDF * G * F / down;
 
     vec3 kd = 1.0 - F;
     kd *= 1.0 - metallic;
@@ -104,13 +105,11 @@ void main(){
     vec3 lightColor = vec3(0.0f, 0.0f, 0.0f);
     vec3 radiance = lightColor * attenuation;
     vec3 Lo = (kd * albedo / PI + specular) * nl;// * radiance;
+    vec3 ambient = vec3(0.03) * albedo * occlusion;
+    vec3 color = emission + Lo + ambient;
 
-    vec3 color = emission + Lo;
-
-    // color = Uncharted2Tonemap(color * uboParams.exposure);
+    color = Uncharted2Tonemap(color * uboParams.exposure);
     // gamma correction
     color = pow(color, vec3(1.0 / uboParams.gamma));
-
     FragColor = vec4(color, 1.0f);
-    // FragColor = vec4(color, 1.0);
 }

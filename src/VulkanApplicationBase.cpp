@@ -17,6 +17,18 @@ VulkanApplicationBase::VulkanApplicationBase() {
 
 }
 
+void VulkanApplicationBase::showGUIWindow(VkCommandBuffer cmdBuffer) {
+
+}
+
+static void checkResult(VkResult res) {
+	if (res != VK_SUCCESS)
+	{
+		std::cout << "Fatal : VkResult is \"" << VulkanBase::Tools::errorString(res) << "\" in " << __FILE__ << " at line " << __LINE__ << "\n"; \
+		assert(res == VK_SUCCESS);
+	}
+}
+
 static void framebufferResizedCallback(GLFWwindow *window, int width, int height) {
     auto app = reinterpret_cast<VulkanApplicationBase *>(glfwGetWindowUserPointer(window));
     app->framebufferResized = true;
@@ -49,6 +61,7 @@ void VulkanApplicationBase::prepare() {
     createRenderPass();
     createPipelineCache();
     createFrameBuffer();
+    createImGuiComponent();
 }
 
 void VulkanApplicationBase::setupDepthStencil() {
@@ -489,6 +502,8 @@ void VulkanApplicationBase::DestroyDebugUtilsMessengerEXT(VkInstance instance, V
 }
 
 VulkanApplicationBase::~VulkanApplicationBase() {
+    vkDestroyDescriptorPool(vulkanDevice->logicalDevice, imGuiDescriptorPool, nullptr);
+
     delete(swapchain);
     vkFreeCommandBuffers(vulkanDevice->logicalDevice, cmdPool, static_cast<uint32_t>(drawCommandBuffers.size()), drawCommandBuffers.data());
     vkDestroyRenderPass(vulkanDevice->logicalDevice, renderPass, nullptr);
@@ -536,4 +551,46 @@ VkPipelineShaderStageCreateInfo VulkanApplicationBase::createShader(const std::s
     createInfo.pName = "main";
     shaderModules.push_back(createInfo.module);
     return createInfo;
+}
+
+void VulkanApplicationBase::createImGuiComponent() {
+    VkDescriptorPoolSize poolSizes[] =
+            {
+                    { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 },
+            };
+    VkDescriptorPoolCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    createInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    createInfo.maxSets = 1;
+    createInfo.pPoolSizes = poolSizes;
+    createInfo.poolSizeCount = (uint32_t)IM_ARRAYSIZE(poolSizes);
+    VK_CHECK_RESULT(vkCreateDescriptorPool(vulkanDevice->logicalDevice, &createInfo, nullptr, &imGuiDescriptorPool));
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
+
+    ImGui::StyleColorsClassic();
+
+    ImGui_ImplGlfw_InitForVulkan(window, true);
+    ImGui_ImplVulkan_InitInfo initInfo{};
+    initInfo.Instance = instance;
+    initInfo.PhysicalDevice = vulkanDevice->physicalDevice;
+    initInfo.Device = vulkanDevice->logicalDevice;
+    initInfo.QueueFamily = vulkanDevice->queueIndices.graphicsIdx;
+    initInfo.Queue = vulkanDevice->graphicsQueue;
+    initInfo.PipelineCache = pipelineCache;
+    initInfo.DescriptorPool = imGuiDescriptorPool;
+    initInfo.Subpass = 0;
+    initInfo.MinImageCount = 2;
+    initInfo.ImageCount = swapchain->imageCount;
+    initInfo.MSAASamples = vulkanDevice->msaaSamples;
+    initInfo.Allocator = nullptr;
+    initInfo.CheckVkResultFn = checkResult;
+    ImGui_ImplVulkan_Init(&initInfo, renderPass);
+
+    vkDeviceWaitIdle(vulkanDevice->logicalDevice);
 }

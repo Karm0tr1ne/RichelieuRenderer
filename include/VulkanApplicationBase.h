@@ -15,8 +15,11 @@
 #include "VulkanTools.h"
 #include "VulkanDevice.h"
 #include "VulkanSwapchain.h"
-#include "GUI.h"
 #include "Camera.hpp"
+
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
+#include "imgui.h"
 
 #ifdef NDEBUG
 const bool enableValidation = false;
@@ -38,7 +41,6 @@ public:
     uint32_t height = 720;
     bool framebufferResized = false;
     std::vector<const char*> requiredExtensions;
-    GUI gui;
     VkClearColorValue defaultClearColor = {{0.025f, 0.025f, 0.025f, 1.0f}};
     Camera camera;
     std::string title = "Richelieu Renderer";
@@ -62,6 +64,7 @@ public:
     void initVulkan();
     VkPipelineShaderStageCreateInfo createShader(const std::string& filePath, VkShaderStageFlagBits stages);
     virtual void prepare();
+    virtual void showGUIWindow(VkCommandBuffer cmdBuffer);
     void renderLoop();
 
     static VkResult createDebugUtilsMessengerExt(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
@@ -77,6 +80,7 @@ protected:
     std::vector<VkFramebuffer> frameBuffers;
     std::vector<VkCommandBuffer> drawCommandBuffers;
     std::vector<VkShaderModule> shaderModules;
+    VkDescriptorPool imGuiDescriptorPool;
     VkCommandPool cmdPool;
     VkRenderPass renderPass;
     VkPipelineCache pipelineCache;
@@ -110,5 +114,6 @@ private:
     void createCommandBuffers();
     void setupColorResources();
     void createPipelineCache();
+    void createImGuiComponent();
 };
 #endif
