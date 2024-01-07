@@ -526,6 +526,7 @@ public:
         VulkanApplicationBase::prepareFrame();
         buildCommandBuffers();
         updateUniformBuffers();
+        updateUBOParams();
         vkResetFences(vulkanDevice->logicalDevice, 1, &inFlightFences[currentBuffer]);
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &drawCommandBuffers[currentBuffer];
