@@ -344,9 +344,7 @@ public:
             ImGui::SliderAngle("Rotation Z Axis", &guiParams.zAngle, 0);
         }
         ImGui::End();
-
         ImGui::Render();
-
         ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmdBuffer);
     }
 

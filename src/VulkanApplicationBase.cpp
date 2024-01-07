@@ -572,6 +572,7 @@ void VulkanApplicationBase::createImGuiComponent() {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
+    io.Fonts->AddFontFromFileTTF("../third_party/imgui/misc/fonts/Roboto-Medium.ttf", 16.0f);
 
     ImGui::StyleColorsClassic();
 

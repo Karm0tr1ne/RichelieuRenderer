@@ -70,8 +70,8 @@ void main(){
     float occlusion = texture(occlusionMap, uv).r;
     vec3 emission = texture(emissionMap, uv).rgb;
     emission *= 0.5f;
-    // vec3 light = normalize(uboParams.lightPos.xyz - positionWS);
-    vec3 light = normalize(vec3(-15.0f, -7.5f, 15.0f) - positionWS);
+    vec3 light = normalize(uboParams.lightPos.xyz - positionWS);
+    // vec3 light = normalize(vec3(-15.0f, -7.5f, 15.0f) - positionWS);
     vec3 normalTS = texture(normalMap, uv).rgb;
     vec3 q1 = dFdx(positionWS);
     vec3 q2 = dFdy(positionWS);
@@ -102,7 +102,7 @@ void main(){
     kd *= 1.0 - metallic;
     float distance = length(uboParams.lightPos.xyz - positionWS);
     float attenuation = 1.0 / (distance * distance);
-    vec3 lightColor = vec3(0.0f, 0.0f, 0.0f);
+    vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
     vec3 radiance = lightColor * attenuation;
     vec3 Lo = (kd * albedo / PI + specular) * nl;// * radiance;
     vec3 ambient = vec3(0.03) * albedo * occlusion;
@@ -111,5 +111,5 @@ void main(){
     color = Uncharted2Tonemap(color * uboParams.exposure);
     // gamma correction
     color = pow(color, vec3(1.0 / uboParams.gamma));
-    FragColor = vec4(color, 1.0f);
+    FragColor = vec4(Lo, 1.0f);
 }
