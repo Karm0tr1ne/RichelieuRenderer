@@ -46,6 +46,8 @@ public:
 
     VikingRoom() : VulkanApplicationBase() {
         title = "Richelieu - Basic Viking Room";
+        width = 1920;
+        height = 1080;
     }
 
     void prepare() override {
@@ -349,6 +351,10 @@ public:
     }
 
     ~VikingRoom() override {
+        ImGui_ImplVulkan_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+
         uniformBuffer.uboMats.cleanUp();
         models.vikingRoom.cleanUp();
         textures.mainTexture.cleanUp();
