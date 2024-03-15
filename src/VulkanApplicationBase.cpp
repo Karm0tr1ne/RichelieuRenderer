@@ -13,6 +13,57 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugMessage(VkDebugUtilsMessageSeve
     return VK_FALSE;
 }
 
+static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    VulkanApplicationBase* base = static_cast<VulkanApplicationBase*>(glfwGetWindowUserPointer(window));
+    base->setKeyStatus(key, action);
+}
+
+void VulkanApplicationBase::setKeyStatus(int key, int action) {
+    if (action == GLFW_PRESS) {
+        switch (key) {
+            case GLFW_KEY_A:
+            case GLFW_KEY_LEFT:
+                camera.keys.left = true;
+                break;
+            case GLFW_KEY_W:
+            case GLFW_KEY_UP:
+                camera.keys.up = true;
+                break;
+            case GLFW_KEY_D:
+            case GLFW_KEY_RIGHT:
+                camera.keys.right = true;
+                break;
+            case GLFW_KEY_S:
+            case GLFW_KEY_DOWN:
+                camera.keys.down = true;
+                break;
+            case GLFW_KEY_ESCAPE:
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
+                break;
+        }
+    }
+    if (action == GLFW_RELEASE) {
+        switch (key) {
+            case GLFW_KEY_A:
+            case GLFW_KEY_LEFT:
+                camera.keys.left = false;
+                break;
+            case GLFW_KEY_W:
+            case GLFW_KEY_UP:
+                camera.keys.up = false;
+                break;
+            case GLFW_KEY_D:
+            case GLFW_KEY_RIGHT:
+                camera.keys.right = false;
+                break;
+            case GLFW_KEY_S:
+            case GLFW_KEY_DOWN:
+                camera.keys.down = false;
+                break;
+        }
+    }
+}
+
 VulkanApplicationBase::VulkanApplicationBase() {
 
 }
@@ -49,6 +100,7 @@ void VulkanApplicationBase::setupWindow() {
     window = glfwCreateWindow(width, height, windowTitle, nullptr, nullptr);
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebufferResizedCallback);
+    glfwSetKeyCallback(window, keyCallback);
 }
 
 void VulkanApplicationBase::prepare() {

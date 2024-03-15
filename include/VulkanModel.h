@@ -5,9 +5,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 #include <string>
-#include "assimp/Importer.hpp"
-#include "assimp/scene.h"
-#include "assimp/postprocess.h"
+//#include "assimp/Importer.hpp"
+//#include "assimp/scene.h"
+//#include "assimp/postprocess.h"
 
 #include "VulkanDevice.h"
 
@@ -47,7 +47,7 @@ public:
 
 private:
     void createBuffer();
-    void processNode(aiNode *node, const aiScene *scene);
-    void processMesh(aiMesh *mesh, const aiScene *scene);
+//    void processNode(aiNode *node, const aiScene *scene);
+//    void processMesh(aiMesh *mesh, const aiScene *scene);
 };
 #endif

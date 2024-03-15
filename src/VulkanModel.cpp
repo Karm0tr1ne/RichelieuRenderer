@@ -5,23 +5,23 @@
 #include <iostream>
 #include <array>
 
-void Model::loadFromFile(std::string filePath, VulkanBase::VulkanDevice *device) {
-    this->pDevice = device;
-
-    Assimp::Importer importer;
-    // TODO: maybe need to flip Y axis
-    const aiScene *scene = importer.ReadFile(filePath, aiProcess_Triangulate);
-
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        std::cout << "failed to load model" << importer.GetErrorString() << std::endl;
-        return;
-    }
-    processNode(scene->mRootNode, scene);
-    std::cout << "Loading New Model: " << filePath << std::endl;
-    std::cout << " Vertices: " << vertices.size() << std::endl;
-
-    createBuffer();
-}
+//void Model::loadFromFile(std::string filePath, VulkanBase::VulkanDevice *device) {
+//    this->pDevice = device;
+//
+//    Assimp::Importer importer;
+//
+//    const aiScene *scene = importer.ReadFile(filePath, aiProcess_Triangulate);
+//
+//    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+//        std::cout << "failed to load model" << importer.GetErrorString() << std::endl;
+//        return;
+//    }
+//    processNode(scene->mRootNode, scene);
+//    std::cout << "Loading New Model: " << filePath << std::endl;
+//    std::cout << " Vertices: " << vertices.size() << std::endl;
+//
+//    createBuffer();
+//}
 
 
 void Model::cleanUp() {
@@ -31,55 +31,55 @@ void Model::cleanUp() {
     vkFreeMemory(pDevice->logicalDevice, indexBuffer.memory, nullptr);
 }
 
-void Model::processNode(aiNode *node, const aiScene *scene) {
-    for (uint32_t i = 0; i < node->mNumMeshes; i++) {
-        aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        processMesh(mesh, scene);
-    }
-    for(uint32_t i = 0; i < node->mNumChildren; i++)
-    {
-        processNode(node->mChildren[i], scene);
-    }
-}
-
-void Model::processMesh(aiMesh *mesh, const aiScene *scene) {
-    for (uint32_t i = 0; i < mesh->mNumVertices; i++) {
-        Vertex vertex{};
-        glm::vec3 temp3;
-        temp3.x = mesh->mVertices[i].x;
-        temp3.y = mesh->mVertices[i].y;
-        temp3.z = mesh->mVertices[i].z;
-        vertex.pos = temp3;
-        if (mesh->HasNormals()) {
-            temp3.x = mesh->mNormals[i].x;
-            temp3.y = mesh->mNormals[i].y;
-            temp3.z = mesh->mNormals[i].z;
-            vertex.normal = temp3;
-        }
-        if (mesh->mTextureCoords[0]) {
-            glm::vec2 temp2;
-            temp2.x = mesh->mTextureCoords[0][i].x;
-            temp2.y = mesh->mTextureCoords[0][i].y;
-            vertex.texCoord = temp2;
-            glm::vec4 temp4;
-            temp4.x = mesh->mTangents[i].x;
-            temp4.y = mesh->mTangents[i].y;
-            temp4.z = mesh->mTangents[i].z;
-            temp4.w = 0;
-            vertex.tangent = temp4;
-        }
-        else {
-            vertex.texCoord = glm::vec2(0.0f, 0.0f);
-        }
-        vertices.push_back(vertex);
-    }
-    for (uint32_t i = 0; i < mesh->mNumFaces; i++) {
-        aiFace face = mesh->mFaces[i];
-        for (uint32_t j = 0; i < face.mNumIndices; i++) {
-            indices.push_back(face.mIndices[j]);
-        }
-    }
-}
+//void Model::processNode(aiNode *node, const aiScene *scene) {
+//    for (uint32_t i = 0; i < node->mNumMeshes; i++) {
+//        aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
+//        processMesh(mesh, scene);
+//    }
+//    for(uint32_t i = 0; i < node->mNumChildren; i++)
+//    {
+//        processNode(node->mChildren[i], scene);
+//    }
+//}
+//
+//void Model::processMesh(aiMesh *mesh, const aiScene *scene) {
+//    for (uint32_t i = 0; i < mesh->mNumVertices; i++) {
+//        Vertex vertex{};
+//        glm::vec3 temp3;
+//        temp3.x = mesh->mVertices[i].x;
+//        temp3.y = mesh->mVertices[i].y;
+//        temp3.z = mesh->mVertices[i].z;
+//        vertex.pos = temp3;
+//        if (mesh->HasNormals()) {
+//            temp3.x = mesh->mNormals[i].x;
+//            temp3.y = mesh->mNormals[i].y;
+//            temp3.z = mesh->mNormals[i].z;
+//            vertex.normal = temp3;
+//        }
+//        if (mesh->mTextureCoords[0]) {
+//            glm::vec2 temp2;
+//            temp2.x = mesh->mTextureCoords[0][i].x;
+//            temp2.y = mesh->mTextureCoords[0][i].y;
+//            vertex.texCoord = temp2;
+//            glm::vec4 temp4;
+//            temp4.x = mesh->mTangents[i].x;
+//            temp4.y = mesh->mTangents[i].y;
+//            temp4.z = mesh->mTangents[i].z;
+//            temp4.w = 0;
+//            vertex.tangent = temp4;
+//        }
+//        else {
+//            vertex.texCoord = glm::vec2(0.0f, 0.0f);
+//        }
+//        vertices.push_back(vertex);
+//    }
+//    for (uint32_t i = 0; i < mesh->mNumFaces; i++) {
+//        aiFace face = mesh->mFaces[i];
+//        for (uint32_t j = 0; i < face.mNumIndices; i++) {
+//            indices.push_back(face.mIndices[j]);
+//        }
+//    }
+//}
 
 void Model::loadFromObj(std::string filePath, VulkanBase::VulkanDevice *device) {
     this->pDevice = device;

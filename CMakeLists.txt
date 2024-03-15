@@ -15,7 +15,7 @@ find_package(Vulkan REQUIRED)
 
 add_subdirectory(third_party/glfw)
 add_subdirectory(third_party/glm)
-add_subdirectory(third_party/assimp)
+# add_subdirectory(third_party/assimp)
 
 include_directories(include)
 include_directories(third_party/imgui)
@@ -36,7 +36,7 @@ function(buildSingleExample EXAMPLE_NAME)
     add_executable(${EXAMPLE_NAME} ${MAIN_CPP} ${SOURCE} ${IMGUI_SOURCE} ${BASE_SRC})
     target_link_libraries(${EXAMPLE_NAME} glfw)
     target_link_libraries(${EXAMPLE_NAME} glm)
-    target_link_libraries(${EXAMPLE_NAME} assimp)
+    # target_link_libraries(${EXAMPLE_NAME} assimp)
     target_link_libraries(${EXAMPLE_NAME} Vulkan::Vulkan)
 
 

@@ -66,6 +66,7 @@ public:
     virtual void prepare();
     virtual void showGUIWindow(VkCommandBuffer cmdBuffer);
     void renderLoop();
+    void setKeyStatus(int key, int action);
 
     static VkResult createDebugUtilsMessengerExt(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
     static void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
