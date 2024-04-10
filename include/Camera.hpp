@@ -61,7 +61,7 @@ public:
         }
     }
 
-    void setPostion(glm::vec3 pos) {
+    void setPosition(glm::vec3 pos) {
         this->position = pos;
         updateViewMatrix();
     }
