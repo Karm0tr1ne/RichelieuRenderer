@@ -32,7 +32,7 @@ namespace VulkanBase {
         void copyBuffer(VulkanBuffer *src, VulkanBuffer *dest, VkQueue queue, VkBufferCopy *copyRegion);
         uint32_t getMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32 *hasFound = nullptr) const;
         VkCommandBuffer createCommandBuffer(VkCommandBufferLevel level, bool begin);
-        void flushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, bool free) const;
+        void flushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, bool free = true) const;
         ~VulkanDevice();
 
     private:

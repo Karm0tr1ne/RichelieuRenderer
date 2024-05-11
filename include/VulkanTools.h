@@ -28,6 +28,7 @@ namespace VulkanBase {
                             VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                             VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
         std::string errorString(VkResult res);
+        uint32_t alignedSize(uint32_t val, uint32_t aligned);
     }
 }
 #endif

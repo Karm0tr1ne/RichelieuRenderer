@@ -212,3 +212,7 @@ std::string VulkanBase::Tools::errorString(VkResult res) {
             return "UNKNOWN_ERROR";
     }
 }
+
+uint32_t VulkanBase::Tools::alignedSize(uint32_t val, uint32_t alignment) {
+    return (val + alignment - 1) & ~(alignment - 1);
+}
